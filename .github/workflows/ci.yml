@@ -11,11 +11,6 @@ on:
 
 permissions:
   contents: read
-
-env:
-  CORTEX_API_KEY: ${{secrets.CORTEX_API_KEY}}
-  CORTEX_API_KEY_ID: ${{secrets.CORTEX_API_KEY_ID}}
-  CORTEX_API_URL: https://api-ms-cxsiamp.xdr.us.paloaltonetworks.com
   
 jobs:
   build-scan-push:    
@@ -45,13 +40,17 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_REPOSITORY: k8s-goat-build-code 
       run: |
-        echo "IMAGE_NAME=${{env.ECR_REGISTRY}}/${{env.IMAGE_REPOSITORY}}" >> $GITHUB_ENV
-        # IMAGE_NAME=${{env.ECR_REGISTRY}}/${{env.IMAGE_REPOSITORY}}
+        echo "IMAGE_NAME=${ECR_REGISTRY}/${IMAGE_REPOSITORY}" >> $GITHUB_ENV
+        # IMAGE_NAME=${ECR_REGISTRY}/${IMAGE_REPOSITORY}
 
         # Build the Docker image
-        docker build -t ${{ env.IMAGE_NAME }}:${{ env.GHA_SHA }} infrastructure/build-code
+        docker build -t ${IMAGE_NAME}:${GHA_SHA} infrastructure/build-code
 
     - name: Download cortexcli
+      env:
+        CORTEX_API_KEY: ${{secrets.CORTEX_API_KEY}}
+        CORTEX_API_KEY_ID: ${{secrets.CORTEX_API_KEY_ID}}
+        CORTEX_API_URL: https://api-ms-cxsiamp.xdr.us.paloaltonetworks.com
       run: |
         set -x
         crtx_resp=$(curl "${CORTEX_API_URL}/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" \
@@ -68,18 +67,11 @@ jobs:
           --api-base-url "${CORTEX_API_URL}" \
           --api-key "${CORTEX_API_KEY}" \
           --api-key-id "${CORTEX_API_KEY_ID}" \
-          image scan \
-          --directory "${{github.workspace}}" \
-          --repo-id "${{github.repository}}" \
-          --branch "${{github.ref_name}}" \
-          --source "GITHUB_ACTIONS" \
-          --create-repo-if-missing
+          image scan "${IMAGE_NAME}:${GHA_SHA}" \
+          --ci-pipeline-id ${GITHUB_RUN_ID} \
+          --ci-build-id ${GITHUB_RUN_NUMBER} 
 
     - name: Push the tagged docker image to ECR
-      env:
-        ECR_REGISTRY: ${{ steps.login-pf-aws-ecr.outputs.registry }}
-        ECR_REPOSITORY: ${{secrets.AWS_ECR_REPO}}
-        IMAGE_TAG: latest
       run: |
-        docker push ${{ env.IMAGE_NAME }}:${{ env.GHA_SHA }}
+        docker push ${IMAGE_NAME}:${GHA_SHA}
  
