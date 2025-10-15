@@ -46,6 +46,7 @@ jobs:
 
         # Build the Docker image
         docker build -t ${IMAGE_REPOSITORY} infrastructure/build-code
+        echo ${ECR_IMAGE_NAME}:${GHA_SHA}
         docker tag ${IMAGE_REPOSITORY}:latest ${ECR_IMAGE_NAME}:${GHA_SHA}
 
     - name: Download cortexcli
