@@ -73,8 +73,9 @@ jobs:
           --api-key "${CORTEX_API_KEY}" \
           --api-key-id "${CORTEX_API_KEY_ID}" \
           image scan "${IMAGE_REPOSITORY}:latest" \
-          --ci-pipeline-id ${GITHUB_RUN_ID} \
-          --ci-build-id ${GITHUB_RUN_NUMBER} 
+          --name "${IMAGE_REPOSITORY}"
+          --ci-pipeline-id "kwan-${GITHUB_RUN_ID}" \
+          --ci-build-id "${GITHUB_RUN_NUMBER}"
 
     - name: Push the tagged docker image to ECR
       run: |
