@@ -1,4 +1,4 @@
-name: CI - scan and build image
+name: CI - build, scan and push image
 
 on:
   push:
