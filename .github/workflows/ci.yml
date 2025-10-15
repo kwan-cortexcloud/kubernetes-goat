@@ -17,6 +17,8 @@ jobs:
   build-scan-push:    
     name: Build, Scan and Push Image
     runs-on: ubuntu-latest
+    env:
+      IMAGE_REPOSITORY: k8s-goat-build-code
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v5
@@ -37,10 +39,11 @@ jobs:
       run: echo "GHA_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
 
     - name: Build and tag Docker image
-      env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_REPOSITORY: k8s-goat-build-code 
+      # env:
+      #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+      #     IMAGE_REPOSITORY: k8s-goat-build-code 
       run: |
+        echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_ENV
         ECR_IMAGE_NAME=${ECR_REGISTRY}/${IMAGE_REPOSITORY}
 
         # Build the Docker image
@@ -69,7 +72,7 @@ jobs:
           --api-base-url "${CORTEX_API_URL}" \
           --api-key "${CORTEX_API_KEY}" \
           --api-key-id "${CORTEX_API_KEY_ID}" \
-          image scan "${IMAGE_NAME}:${GHA_SHA}" \
+          image scan "${IMAGE_REPOSITORY}:latest" \
           --ci-pipeline-id ${GITHUB_RUN_ID} \
           --ci-build-id ${GITHUB_RUN_NUMBER} 
 
