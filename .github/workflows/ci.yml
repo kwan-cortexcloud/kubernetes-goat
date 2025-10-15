@@ -19,6 +19,9 @@ jobs:
     runs-on: ubuntu-latest
     env:
       IMAGE_REPOSITORY: k8s-goat-build-code
+      CORTEX_API_KEY: ${{secrets.CORTEX_API_KEY}}
+      CORTEX_API_KEY_ID: ${{secrets.CORTEX_API_KEY_ID}}
+      CORTEX_API_URL: https://api-ms-cxsiamp.xdr.us.paloaltonetworks.com
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v5
@@ -53,10 +56,6 @@ jobs:
         docker tag ${IMAGE_REPOSITORY}:latest ${ECR_IMAGE_NAME}:${GHA_SHA}
 
     - name: Download cortexcli
-      env:
-        CORTEX_API_KEY: ${{secrets.CORTEX_API_KEY}}
-        CORTEX_API_KEY_ID: ${{secrets.CORTEX_API_KEY_ID}}
-        CORTEX_API_URL: https://api-ms-cxsiamp.xdr.us.paloaltonetworks.com
       run: |
         set -x
         crtx_resp=$(curl "${CORTEX_API_URL}/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" \
