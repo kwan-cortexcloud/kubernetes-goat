@@ -35,15 +35,16 @@ jobs:
       id: login-ecr
       uses: aws-actions/amazon-ecr-login@v2
 
-    - name: Get short SHA
-      run: echo "GHA_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+    - name: Get short SHA and ECR registry
+      run: |
+        echo "GHA_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+        echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_ENV
 
     - name: Build and tag Docker image
       # env:
       #     ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
       #     IMAGE_REPOSITORY: k8s-goat-build-code 
       run: |
-        echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_ENV
         ECR_IMAGE_NAME=${ECR_REGISTRY}/${IMAGE_REPOSITORY}
 
         # Build the Docker image
