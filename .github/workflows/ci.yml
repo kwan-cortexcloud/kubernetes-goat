@@ -41,11 +41,12 @@ jobs:
           ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_REPOSITORY: k8s-goat-build-code 
       run: |
-        echo "IMAGE_NAME=${ECR_REGISTRY}/${IMAGE_REPOSITORY}" >> $GITHUB_ENV
+        echo "ECR_IMAGE_NAME=${ECR_REGISTRY}/${IMAGE_REPOSITORY}" >> $GITHUB_ENV
         # IMAGE_NAME=${ECR_REGISTRY}/${IMAGE_REPOSITORY}
 
         # Build the Docker image
-        docker build -t ${IMAGE_NAME}:${GHA_SHA} infrastructure/build-code
+        docker build -t ${IMAGE_REPOSITORY} infrastructure/build-code
+        docker tag ${IMAGE_REPOSITORY}:latest ${ECR_IMAGE_NAME}:${GHA_SHA}
 
     - name: Download cortexcli
       env:
@@ -74,5 +75,5 @@ jobs:
 
     - name: Push the tagged docker image to ECR
       run: |
-        docker push ${IMAGE_NAME}:${GHA_SHA}
+        docker push ${ECR_IMAGE_NAME}:${GHA_SHA}
  
