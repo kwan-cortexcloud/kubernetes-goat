@@ -75,7 +75,7 @@ jobs:
           --api-key "${CORTEX_API_KEY}" \
           --api-key-id "${CORTEX_API_KEY_ID}" \
           image scan "${IMAGE_REPOSITORY}:latest" \
-          --name "${IMAGE_REPOSITORY}" \ 
+          --name "${IMAGE_REPOSITORY}" \
           --ci-pipeline-id "kwan-${GITHUB_RUN_ID}" \
           --ci-build-id "${GITHUB_RUN_NUMBER}"
 
