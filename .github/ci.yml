@@ -1,0 +1,85 @@
+name: CI - scan and build image
+
+on:
+  push:
+    branches: [ "cc-test" ]
+  # pull_request:
+  #   branches: [ "main" ]
+  # schedule:
+  #   - cron: '45 17 * * 1'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CORTEX_API_KEY: ${{secrets.CORTEX_API_KEY}}
+  CORTEX_API_KEY_ID: ${{secrets.CORTEX_API_KEY_ID}}
+  CORTEX_API_URL: https://api-ms-cxsiamp.xdr.us.paloaltonetworks.com
+  
+jobs:
+  build-scan-push:    
+    name: Build, Scan and Push Image
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v5
+      with: 
+        ref: 'cc-test'
+   
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: us-east-2
+
+    - name: ECR Login
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Get short SHA
+      run: echo "GHA_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+
+    - name: Build and tag Docker image
+      env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_REPOSITORY: k8s-goat-build-code 
+      run: |
+        echo "IMAGE_NAME=${{env.ECR_REGISTRY}}/${{env.IMAGE_REPOSITORY}}" >> $GITHUB_ENV
+        # IMAGE_NAME=${{env.ECR_REGISTRY}}/${{env.IMAGE_REPOSITORY}}
+
+        # Build the Docker image
+        docker build -t ${{ env.IMAGE_NAME }}:${{ env.GHA_SHA }} infrastructure/build-code
+
+    - name: Download cortexcli
+      run: |
+        set -x
+        crtx_resp=$(curl "${CORTEX_API_URL}/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" \
+          -H "x-xdr-auth-id: ${CORTEX_API_KEY_ID}" \
+          -H "Authorization: ${CORTEX_API_KEY}")
+        crtx_url=$(echo $crtx_resp | jq -r ".signed_url")
+        curl -o cortexcli $crtx_url
+        chmod +x cortexcli
+        ./cortexcli --version
+
+    - name: Run Cortex CLI Image Scan
+      run: |
+        ./cortexcli \
+          --api-base-url "${CORTEX_API_URL}" \
+          --api-key "${CORTEX_API_KEY}" \
+          --api-key-id "${CORTEX_API_KEY_ID}" \
+          image scan \
+          --directory "${{github.workspace}}" \
+          --repo-id "${{github.repository}}" \
+          --branch "${{github.ref_name}}" \
+          --source "GITHUB_ACTIONS" \
+          --create-repo-if-missing
+
+    - name: Push the tagged docker image to ECR
+      env:
+        ECR_REGISTRY: ${{ steps.login-pf-aws-ecr.outputs.registry }}
+        ECR_REPOSITORY: ${{secrets.AWS_ECR_REPO}}
+        IMAGE_TAG: latest
+      run: |
+        docker push ${{ env.IMAGE_NAME }}:${{ env.GHA_SHA }}
+ 
