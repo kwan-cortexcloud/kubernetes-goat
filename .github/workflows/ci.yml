@@ -68,6 +68,8 @@ jobs:
 
     - name: Run Cortex CLI Image Scan
       run: |
+        echo "kwan-${GITHUB_RUN_ID}"
+        echo "${GITHUB_RUN_NUMBER}"
         ./cortexcli \
           --api-base-url "${CORTEX_API_URL}" \
           --api-key "${CORTEX_API_KEY}" \
