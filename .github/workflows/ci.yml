@@ -28,6 +28,7 @@ jobs:
       with: 
         ref: 'cc-test'
    
+    # configure OIDC for github actions first to create the IAM role: https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
