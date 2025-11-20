@@ -19,8 +19,15 @@ resource "aws_iam_role" "eks_cluster_role" {
     ]
   })
   tags = {
-    yor_name  = "eks_cluster_role"
-    yor_trace = "403d956b-254a-4a64-900b-452bea0ff6a0"
+    yor_name             = "eks_cluster_role"
+    yor_trace            = "403d956b-254a-4a64-900b-452bea0ff6a0"
+    git_commit           = "efd118cc07ab9024323d29f00158a21c113a6b61"
+    git_file             = "platforms/aws-setup/aws-eks-tf/iam.tf"
+    git_last_modified_at = "2025-10-15 00:32:34"
+    git_last_modified_by = "kwan@paloaltonetworks.com"
+    git_modifiers        = "kwan"
+    git_org              = "kwan-cortexcloud"
+    git_repo             = "kubernetes-goat"
   }
 }
 
@@ -47,8 +54,15 @@ resource "aws_iam_role" "eks_node_group_role" {
     ]
   })
   tags = {
-    yor_name  = "eks_node_group_role"
-    yor_trace = "942bc1db-f24f-4f74-a147-f40709a04ec9"
+    yor_name             = "eks_node_group_role"
+    yor_trace            = "942bc1db-f24f-4f74-a147-f40709a04ec9"
+    git_commit           = "efd118cc07ab9024323d29f00158a21c113a6b61"
+    git_file             = "platforms/aws-setup/aws-eks-tf/iam.tf"
+    git_last_modified_at = "2025-10-15 00:32:34"
+    git_last_modified_by = "kwan@paloaltonetworks.com"
+    git_modifiers        = "kwan"
+    git_org              = "kwan-cortexcloud"
+    git_repo             = "kubernetes-goat"
   }
 }
 

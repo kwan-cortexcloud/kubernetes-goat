@@ -9,9 +9,16 @@ resource "aws_vpc" "k8s_goat_vpc" {
   enable_dns_hostnames = true
 
   tags = {
-    Name      = "${var.cluster_name}-vpc"
-    yor_name  = "k8s_goat_vpc"
-    yor_trace = "e563c36c-28f8-469c-b2db-20bfd6acb099"
+    Name                 = "${var.cluster_name}-vpc"
+    yor_name             = "k8s_goat_vpc"
+    yor_trace            = "e563c36c-28f8-469c-b2db-20bfd6acb099"
+    git_commit           = "efd118cc07ab9024323d29f00158a21c113a6b61"
+    git_file             = "platforms/aws-setup/aws-eks-tf/vpc.tf"
+    git_last_modified_at = "2025-10-15 00:32:34"
+    git_last_modified_by = "kwan@paloaltonetworks.com"
+    git_modifiers        = "kwan"
+    git_org              = "kwan-cortexcloud"
+    git_repo             = "kubernetes-goat"
   }
 }
 
@@ -20,9 +27,16 @@ resource "aws_internet_gateway" "k8s_goat_igw" {
   vpc_id = aws_vpc.k8s_goat_vpc.id
 
   tags = {
-    Name      = "${var.cluster_name}-igw"
-    yor_name  = "k8s_goat_igw"
-    yor_trace = "d1d685c7-73d1-4b64-b58a-89abec2dc8ac"
+    Name                 = "${var.cluster_name}-igw"
+    yor_name             = "k8s_goat_igw"
+    yor_trace            = "d1d685c7-73d1-4b64-b58a-89abec2dc8ac"
+    git_commit           = "efd118cc07ab9024323d29f00158a21c113a6b61"
+    git_file             = "platforms/aws-setup/aws-eks-tf/vpc.tf"
+    git_last_modified_at = "2025-10-15 00:32:34"
+    git_last_modified_by = "kwan@paloaltonetworks.com"
+    git_modifiers        = "kwan"
+    git_org              = "kwan-cortexcloud"
+    git_repo             = "kubernetes-goat"
   }
 }
 
@@ -41,6 +55,13 @@ resource "aws_subnet" "k8s_goat_public_subnet" {
     "kubernetes.io/role/elb"                    = "1"
     yor_name                                    = "k8s_goat_public_subnet"
     yor_trace                                   = "d2583cf4-a53c-4e89-9b14-b41739818610"
+    git_commit                                  = "efd118cc07ab9024323d29f00158a21c113a6b61"
+    git_file                                    = "platforms/aws-setup/aws-eks-tf/vpc.tf"
+    git_last_modified_at                        = "2025-10-15 00:32:34"
+    git_last_modified_by                        = "kwan@paloaltonetworks.com"
+    git_modifiers                               = "kwan"
+    git_org                                     = "kwan-cortexcloud"
+    git_repo                                    = "kubernetes-goat"
   }
 }
 
@@ -58,6 +79,13 @@ resource "aws_subnet" "k8s_goat_private_subnet" {
     "kubernetes.io/role/internal-elb"           = "1"
     yor_name                                    = "k8s_goat_private_subnet"
     yor_trace                                   = "8d362b15-7de4-4f05-b30e-01c828fe19e3"
+    git_commit                                  = "efd118cc07ab9024323d29f00158a21c113a6b61"
+    git_file                                    = "platforms/aws-setup/aws-eks-tf/vpc.tf"
+    git_last_modified_at                        = "2025-10-15 00:32:34"
+    git_last_modified_by                        = "kwan@paloaltonetworks.com"
+    git_modifiers                               = "kwan"
+    git_org                                     = "kwan-cortexcloud"
+    git_repo                                    = "kubernetes-goat"
   }
 }
 
@@ -67,9 +95,16 @@ resource "aws_eip" "k8s_goat_eip" {
   depends_on = [aws_internet_gateway.k8s_goat_igw]
 
   tags = {
-    Name      = "${var.cluster_name}-nat-eip"
-    yor_name  = "k8s_goat_eip"
-    yor_trace = "beda3402-564c-4e37-8b0c-66af9f29455b"
+    Name                 = "${var.cluster_name}-nat-eip"
+    yor_name             = "k8s_goat_eip"
+    yor_trace            = "beda3402-564c-4e37-8b0c-66af9f29455b"
+    git_commit           = "efd118cc07ab9024323d29f00158a21c113a6b61"
+    git_file             = "platforms/aws-setup/aws-eks-tf/vpc.tf"
+    git_last_modified_at = "2025-10-15 00:32:34"
+    git_last_modified_by = "kwan@paloaltonetworks.com"
+    git_modifiers        = "kwan"
+    git_org              = "kwan-cortexcloud"
+    git_repo             = "kubernetes-goat"
   }
 }
 
@@ -79,9 +114,16 @@ resource "aws_nat_gateway" "k8s_goat_nat_gw" {
   subnet_id     = aws_subnet.k8s_goat_public_subnet[0].id
 
   tags = {
-    Name      = "${var.cluster_name}-nat-gw"
-    yor_name  = "k8s_goat_nat_gw"
-    yor_trace = "f0cd13b9-708f-441f-ba1f-e737d1b50e43"
+    Name                 = "${var.cluster_name}-nat-gw"
+    yor_name             = "k8s_goat_nat_gw"
+    yor_trace            = "f0cd13b9-708f-441f-ba1f-e737d1b50e43"
+    git_commit           = "efd118cc07ab9024323d29f00158a21c113a6b61"
+    git_file             = "platforms/aws-setup/aws-eks-tf/vpc.tf"
+    git_last_modified_at = "2025-10-15 00:32:34"
+    git_last_modified_by = "kwan@paloaltonetworks.com"
+    git_modifiers        = "kwan"
+    git_org              = "kwan-cortexcloud"
+    git_repo             = "kubernetes-goat"
   }
 
   depends_on = [aws_internet_gateway.k8s_goat_igw]
@@ -97,9 +139,16 @@ resource "aws_route_table" "k8s_goat_public_rt" {
   }
 
   tags = {
-    Name      = "${var.cluster_name}-public-rt"
-    yor_name  = "k8s_goat_public_rt"
-    yor_trace = "81373090-be21-49e3-85f3-4ad72eb8c529"
+    Name                 = "${var.cluster_name}-public-rt"
+    yor_name             = "k8s_goat_public_rt"
+    yor_trace            = "81373090-be21-49e3-85f3-4ad72eb8c529"
+    git_commit           = "efd118cc07ab9024323d29f00158a21c113a6b61"
+    git_file             = "platforms/aws-setup/aws-eks-tf/vpc.tf"
+    git_last_modified_at = "2025-10-15 00:32:34"
+    git_last_modified_by = "kwan@paloaltonetworks.com"
+    git_modifiers        = "kwan"
+    git_org              = "kwan-cortexcloud"
+    git_repo             = "kubernetes-goat"
   }
 }
 
@@ -121,9 +170,16 @@ resource "aws_route_table" "k8s_goat_private_rt" {
   }
 
   tags = {
-    Name      = "${var.cluster_name}-private-rt"
-    yor_name  = "k8s_goat_private_rt"
-    yor_trace = "7df0913d-2001-4d54-9e9e-0b3908657ee6"
+    Name                 = "${var.cluster_name}-private-rt"
+    yor_name             = "k8s_goat_private_rt"
+    yor_trace            = "7df0913d-2001-4d54-9e9e-0b3908657ee6"
+    git_commit           = "efd118cc07ab9024323d29f00158a21c113a6b61"
+    git_file             = "platforms/aws-setup/aws-eks-tf/vpc.tf"
+    git_last_modified_at = "2025-10-15 00:32:34"
+    git_last_modified_by = "kwan@paloaltonetworks.com"
+    git_modifiers        = "kwan"
+    git_org              = "kwan-cortexcloud"
+    git_repo             = "kubernetes-goat"
   }
 }
 

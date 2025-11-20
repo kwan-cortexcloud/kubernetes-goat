@@ -16,8 +16,10 @@ resource "aws_eks_cluster" "k8s_goat_cluster" {
     aws_iam_role_policy_attachment.eks_cluster_policy,
   ]
   tags = {
-    yor_name  = "k8s_goat_cluster"
-    yor_trace = "661f56a7-b0f2-4650-83bf-aa04c2e6bbdb"
+    yor_name    = "k8s_goat_cluster"
+    yor_trace   = "661f56a7-b0f2-4650-83bf-aa04c2e6bbdb"
+    created-by  = "kwan"
+    application = "k8s-goat"
   }
 }
 
@@ -47,8 +49,11 @@ resource "aws_eks_node_group" "k8s_goat_node_group" {
   ]
 
   tags = {
-    Name      = "${var.cluster_name}-worker-node"
-    yor_name  = "k8s_goat_node_group"
-    yor_trace = "5a4d5f78-ad56-427a-9430-1be3f7ab4330"
+    Name                = "${var.cluster_name}-worker-node"
+    propagate_at_launch = "true"
+    created-by          = "kwan"
+    application         = "k8s-goat"
+    yor_name            = "k8s_goat_node_group"
+    yor_trace           = "1ba70cf2-3e26-4468-a126-7dbbbde0ef3b"
   }
 }

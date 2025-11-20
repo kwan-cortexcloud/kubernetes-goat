@@ -11,7 +11,7 @@ variable "aws_region" {
 variable "cluster_name" {
   description = "The name of the EKS cluster."
   type        = string
-  default     = "k8s-goat-cluster"
+  default     = "kwan-k8s-goat-cluster"
 }
 
 variable "node_instance_type" {

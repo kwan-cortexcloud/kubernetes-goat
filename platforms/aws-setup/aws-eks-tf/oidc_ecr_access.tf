@@ -1,29 +1,8 @@
 # TF to enable OIDC for EKS cluster to pull images from private ECR
 
 # -----------------------------------------------------------------------------
-# PROVIDER CONFIGURATION
-# -----------------------------------------------------------------------------
-# Ensure you have configured your AWS and Kubernetes providers.
-# The Kubernetes provider should be configured to connect to your EKS cluster.
-
-provider "aws" {
-  region = "us-east-2" 
-}
-
-provider "kubernetes" {
-  host                   = data.aws_eks_cluster.cluster.endpoint
-  cluster_ca_certificate = base64decode(data.aws_eks_cluster.cluster.certificate_authority.0.data)
-  token                  = data.aws_eks_cluster_auth.cluster.token
-}
-
-# -----------------------------------------------------------------------------
 # INPUT VARIABLES
 # -----------------------------------------------------------------------------
-variable "cluster_name" {
-  description = "The name of your EKS cluster."
-  type        = string
-  default     = "k8s-goat-cluster"
-}
 
 variable "k8s_namespace" {
   description = "The Kubernetes namespace for the service account."
@@ -64,16 +43,16 @@ data "tls_certificate" "cluster_oidc" {
 data "aws_caller_identity" "current" {}
 
 # -----------------------------------------------------------------------------
-# STEP 1: IAM OIDC IDENTITY PROVIDER
+# IAM OIDC IDENTITY PROVIDER
 # -----------------------------------------------------------------------------
-resource "aws_iam_openid_connect_provider" "oidc_provider" {
-  client_id_list  = ["sts.amazonaws.com"]
-  thumbprint_list = [data.tls_certificate.cluster_oidc.certificates[0].sha1_fingerprint]
-  url             = data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer
-}
+#resource "aws_iam_openid_connect_provider" "oidc_provider" {
+#  client_id_list  = ["sts.amazonaws.com"]
+#  thumbprint_list = [data.tls_certificate.cluster_oidc.certificates[0].sha1_fingerprint]
+#  url             = data.aws_eks_cluster.cluster.identity[0].oidc[0].issuer
+#}
 
 # -----------------------------------------------------------------------------
-# STEP 2 & 3: IAM POLICY AND ROLE
+# IAM POLICY AND ROLE
 # -----------------------------------------------------------------------------
 # IAM Policy for ECR read-only access
 resource "aws_iam_policy" "ecr_readonly_policy" {
@@ -95,6 +74,10 @@ resource "aws_iam_policy" "ecr_readonly_policy" {
       },
     ]
   })
+  tags = {
+    yor_name  = "ecr_readonly_policy"
+    yor_trace = "9e411dd4-6feb-40f9-b34b-89a02fe8b5bf"
+  }
 }
 
 # Data source to construct the trust policy for the IAM role
@@ -105,12 +88,12 @@ data "aws_iam_policy_document" "assume_role_policy" {
 
     principals {
       type        = "Federated"
-      identifiers = [aws_iam_openid_connect_provider.oidc_provider.arn]
+      identifiers = [aws_iam_openid_connect_provider.eks_oidc_provider.arn]
     }
 
     condition {
       test     = "StringEquals"
-      variable = "${replace(aws_iam_openid_connect_provider.oidc_provider.url, "https://", "")}:sub"
+      variable = "${replace(aws_iam_openid_connect_provider.eks_oidc_provider.url, "https://", "")}:sub"
       values   = ["system:serviceaccount:${var.k8s_namespace}:${var.k8s_service_account_name}"]
     }
   }
@@ -120,6 +103,10 @@ data "aws_iam_policy_document" "assume_role_policy" {
 resource "aws_iam_role" "ecr_puller_role" {
   name               = var.role_name
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
+  tags = {
+    yor_name  = "ecr_puller_role"
+    yor_trace = "f4be0dcf-d162-4517-a4d7-532e5dcf217b"
+  }
 }
 
 # Attach the ECR policy to the role
@@ -131,6 +118,12 @@ resource "aws_iam_role_policy_attachment" "ecr_policy_attach" {
 # -----------------------------------------------------------------------------
 # STEP 4: KUBERNETES SERVICE ACCOUNT
 # -----------------------------------------------------------------------------
+resource "kubernetes_namespace" "app_namespace" {
+  metadata {
+    name = var.k8s_namespace
+  }
+}
+
 resource "kubernetes_service_account" "ecr_puller_sa" {
   metadata {
     name      = var.k8s_service_account_name
@@ -145,12 +138,12 @@ resource "kubernetes_service_account" "ecr_puller_sa" {
 # -----------------------------------------------------------------------------
 # OUTPUTS
 # -----------------------------------------------------------------------------
-output "iam_role_arn" {
+output "ecr_puller_iam_role_arn" {
   description = "ARN of the created IAM role for ECR access."
   value       = aws_iam_role.ecr_puller_role.arn
 }
 
-output "kubernetes_service_account_name" {
-  description = "Name of the created Kubernetes Service Account."
+output "ecr_puller_kubernetes_service_account_name" {
+  description = "Kubernetes Service Account for ECR image pull."
   value       = kubernetes_service_account.ecr_puller_sa.metadata[0].name
 }
