@@ -19,7 +19,7 @@ jobs:
     env:
         CORTEX_API_KEY: ${{secrets.CORTEX_API_KEY}}
         CORTEX_API_KEY_ID: ${{secrets.CORTEX_API_KEY_ID}}
-        CORTEX_API_URL: https://api-ms-cxsiamp.xdr.us.paloaltonetworks.com
+        CORTEX_API_BASE_URL: https://api-ms-cxsiamp.xdr.us.paloaltonetworks.com
 
     steps:
     - name: Checkout Repository
@@ -36,7 +36,7 @@ jobs:
     - name: Download cortexcli
       run: |
         set -x
-        crtx_resp=$(curl "${CORTEX_API_URL}/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" \
+        crtx_resp=$(curl "${CORTEX_API_BASE_URL}/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" \
           -H "x-xdr-auth-id: ${CORTEX_API_KEY_ID}" \
           -H "Authorization: ${CORTEX_API_KEY}")
         crtx_url=$(echo $crtx_resp | jq -r ".signed_url")
@@ -47,9 +47,6 @@ jobs:
     - name: Run Cortex CLI Code Scan
       run: |
         ./cortexcli \
-          --api-base-url "${CORTEX_API_URL}" \
-          --api-key "${CORTEX_API_KEY}" \
-          --api-key-id "${CORTEX_API_KEY_ID}" \
           code scan \
           --directory "${{github.workspace}}" \
           --repo-id "${{github.repository}}" \
@@ -64,7 +61,7 @@ jobs:
       IMAGE_REPOSITORY: k8s-goat-build-code
       CORTEX_API_KEY: ${{secrets.CORTEX_API_KEY}}
       CORTEX_API_KEY_ID: ${{secrets.CORTEX_API_KEY_ID}}
-      CORTEX_API_URL: https://api-ms-cxsiamp.xdr.us.paloaltonetworks.com
+      CORTEX_API_BASE_URL: https://api-ms-cxsiamp.xdr.us.paloaltonetworks.com
     steps:
     - name: Checkout Repository
       uses: actions/checkout@v5
@@ -100,7 +97,7 @@ jobs:
     - name: Download cortexcli
       run: |
         set -x
-        crtx_resp=$(curl "${CORTEX_API_URL}/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" \
+        crtx_resp=$(curl "${CORTEX_API_BASE_URL}/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" \
           -H "x-xdr-auth-id: ${CORTEX_API_KEY_ID}" \
           -H "Authorization: ${CORTEX_API_KEY}")
         crtx_url=$(echo $crtx_resp | jq -r ".signed_url")
@@ -113,9 +110,6 @@ jobs:
         echo "kwan-${GITHUB_RUN_ID}"
         echo "${GITHUB_RUN_NUMBER}"
         ./cortexcli \
-          --api-base-url "${CORTEX_API_URL}" \
-          --api-key "${CORTEX_API_KEY}" \
-          --api-key-id "${CORTEX_API_KEY_ID}" \
           image scan \
           --name "${IMAGE_REPOSITORY}" \
           --ci-pipeline-id "kwan-${GITHUB_RUN_ID}" \
