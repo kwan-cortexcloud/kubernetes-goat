@@ -34,9 +34,7 @@ jobs:
       run: node -v
 
     - name: Download cortexcli
-      run: |
-        set -x
-        sudo apt install libhyperscan5
+      run: |        
         crtx_resp=$(curl "${CORTEX_API_BASE_URL}/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" \
           -H "x-xdr-auth-id: ${CORTEX_API_KEY_ID}" \
           -H "Authorization: ${CORTEX_API_KEY}")
@@ -47,6 +45,7 @@ jobs:
 
     - name: Run Cortex CLI Code Scan
       run: |
+        set -x
         ./cortexcli \
           code scan \
           --directory "${{github.workspace}}" \
@@ -96,8 +95,8 @@ jobs:
         docker tag ${IMAGE_REPOSITORY}:latest ${ECR_IMAGE_NAME}:${GHA_SHA}
 
     - name: Download cortexcli
-      run: |
-        set -x
+      run: |        
+        sudo apt install libhyperscan5
         crtx_resp=$(curl "${CORTEX_API_BASE_URL}/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" \
           -H "x-xdr-auth-id: ${CORTEX_API_KEY_ID}" \
           -H "Authorization: ${CORTEX_API_KEY}")
@@ -108,8 +107,7 @@ jobs:
 
     - name: Run Cortex CLI Image Scan
       run: |
-        echo "kwan-${GITHUB_RUN_ID}"
-        echo "${GITHUB_RUN_NUMBER}"
+        set -x
         ./cortexcli \
           image scan \
           --name "${IMAGE_REPOSITORY}" \
