@@ -52,7 +52,7 @@ jobs:
           --repo-id "${{github.repository}}" \
           --branch "${{github.ref_name}}" \
           --source "GITHUB_ACTIONS" \
-          --upload-mode no-upload
+          --upload-mode upload
 
   image-build-scan-push:    
     name: Build, Scan and Push Image
