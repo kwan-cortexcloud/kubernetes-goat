@@ -1,12 +1,12 @@
 name: Deploy to EKS
 
 on:
-  workflow_run:
-    workflows: ["ci.yml"] 
-    types:
-      - completed
-    branches:
-      - cc-test # Only run after CI jobs on the 'cc-test' branch
+  # workflow_run:
+  #   workflows: ["ci.yml"] 
+  #   types:
+  #     - completed
+  #   branches:
+  #     - cc-test # Only run after CI jobs on the 'cc-test' branch
   workflow_dispatch:
 
 jobs:
