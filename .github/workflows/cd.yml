@@ -7,7 +7,7 @@ on:
       - completed
     branches:
       - cc-test # Only run after CI jobs on the 'cc-test' branch
-
+  workflow_dispatch:
 
 jobs:
   deploy:
