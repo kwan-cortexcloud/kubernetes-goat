@@ -1,0 +1,121 @@
+name: CI - build, scan and push image
+
+on:
+  push:
+    branches: [ "cc-test" ]
+  # pull_request:
+  #   branches: [ "main" ]
+  # schedule:
+  #   - cron: '45 17 * * 1'
+  workflow_dispatch:
+
+permissions:
+  id-token: write
+  contents: read
+  
+jobs:
+  cortex-code-scan:
+    runs-on: ubuntu-latest
+    env:
+        CORTEX_API_KEY: ${{secrets.CORTEX_API_KEY}}
+        CORTEX_API_KEY_ID: ${{secrets.CORTEX_API_KEY_ID}}
+        CORTEX_API_BASE_URL: https://api-ms-cxsiamp.xdr.us.paloaltonetworks.com
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+    
+    - name: Set up Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: 22
+
+    - name: Verify Node.js Version
+      run: node -v
+
+    - name: Download cortexcli
+      run: |        
+        crtx_resp=$(curl "${CORTEX_API_BASE_URL}/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" \
+          -H "x-xdr-auth-id: ${CORTEX_API_KEY_ID}" \
+          -H "Authorization: ${CORTEX_API_KEY}")
+        crtx_url=$(echo $crtx_resp | jq -r ".signed_url")
+        curl -o cortexcli $crtx_url
+        chmod +x cortexcli
+        ./cortexcli --version
+
+    - name: Run Cortex CLI Code Scan
+      run: |
+        set -x
+        ./cortexcli \
+          code scan \
+          --directory "${{github.workspace}}" \
+          --repo-id "${{github.repository}}" \
+          --branch "${{github.ref_name}}" \
+          --source "GITHUB_ACTIONS" \
+          --upload-mode no-upload
+
+  image-build-scan-push:    
+    name: Build, Scan and Push Image
+    runs-on: ubuntu-latest
+    env:
+      IMAGE_REPOSITORY: k8s-goat-build-code
+      CORTEX_API_KEY: ${{secrets.CORTEX_API_KEY}}
+      CORTEX_API_KEY_ID: ${{secrets.CORTEX_API_KEY_ID}}
+      CORTEX_API_BASE_URL: https://api-ms-cxsiamp.xdr.us.paloaltonetworks.com
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v5
+      with: 
+        ref: 'cc-test'
+   
+    # configure OIDC for github actions first to create the IAM role: https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        aws-region: us-east-2
+
+    - name: ECR Login
+      id: login-ecr
+      uses: aws-actions/amazon-ecr-login@v2
+
+    - name: Get short SHA and ECR registry
+      run: |
+        echo "GHA_SHA=${GITHUB_SHA:0:7}" >> $GITHUB_ENV
+        echo "ECR_REGISTRY=${{ steps.login-ecr.outputs.registry }}" >> $GITHUB_ENV
+
+    - name: Build and tag Docker image
+      run: |
+        ECR_IMAGE_NAME=${ECR_REGISTRY}/${IMAGE_REPOSITORY}
+
+        # Build the Docker image
+        docker build -t ${IMAGE_REPOSITORY} infrastructure/build-code
+        echo ${ECR_IMAGE_NAME}:${GHA_SHA}
+        docker tag ${IMAGE_REPOSITORY}:latest ${ECR_IMAGE_NAME}:latest
+        docker tag ${IMAGE_REPOSITORY}:latest ${ECR_IMAGE_NAME}:${GHA_SHA}
+
+    - name: Download cortexcli
+      run: |        
+        sudo apt install libhyperscan5
+        crtx_resp=$(curl "${CORTEX_API_BASE_URL}/public_api/v1/unified-cli/releases/download-link?os=linux&architecture=amd64" \
+          -H "x-xdr-auth-id: ${CORTEX_API_KEY_ID}" \
+          -H "Authorization: ${CORTEX_API_KEY}")
+        crtx_url=$(echo $crtx_resp | jq -r ".signed_url")
+        curl -o cortexcli $crtx_url
+        chmod +x cortexcli
+        ./cortexcli --version
+
+    - name: Run Cortex CLI Image Scan
+      run: |
+        set -x
+        ./cortexcli \
+          image scan \
+          --name "${IMAGE_REPOSITORY}" \
+          --ci-pipeline-id "kwan-${GITHUB_RUN_ID}" \
+          --ci-build-id "${GITHUB_RUN_NUMBER}" \
+          "${IMAGE_REPOSITORY}:latest" 
+
+    - name: Push the tagged docker image to ECR
+      run: |
+        docker push ${ECR_REGISTRY}/${IMAGE_REPOSITORY} --all-tags
+ 

@@ -1,0 +1,38 @@
+name: Deploy to EKS
+
+on:
+  workflow_run:
+    workflows: ["ci.yml"] 
+    types:
+      - completed
+    branches:
+      - cc-test # Only run after CI jobs on the 'cc-test' branch
+
+
+jobs:
+  deploy:
+    name: Deploy to k8s goat scenarios to EKS
+    runs-on: ubuntu-latest 
+    
+    if: github.event.workflow_run.conclusion == 'success'
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+    # configure OIDC for github actions first to create the IAM role: https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws
+      - name: Configure AWS Credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          # ARN of the IAM role GitHub Actions will assume
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          aws-region: us-east-2 # EKS cluster's region
+
+      - name: kubeconfig for EKS
+        uses: aws-actions/amazon-eks-gets-kubeconfig@v1
+        with:
+          cluster-name: ${{ secrets.EKS_CLUSTER_NAME }}
+
+      - name: Deploy to cluster
+        run: |
+          chmod +x setup-kubernetes-goat-kwan.sh
+          ./setup-kubernetes-goat-kwan.sh
