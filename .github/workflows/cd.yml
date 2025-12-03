@@ -26,11 +26,9 @@ jobs:
           # ARN of the IAM role GitHub Actions will assume
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
           aws-region: us-east-2 # EKS cluster's region
-
-      - name: kubeconfig for EKS
-        uses: aws-actions/amazon-eks-gets-kubeconfig@v1
-        with:
-          cluster-name: ${{ secrets.EKS_CLUSTER_NAME }}
+    
+      - name: Update Kubeconfig for EKS
+        run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-2 
 
       - name: Deploy to cluster
         run: |
