@@ -21,7 +21,7 @@ jobs:
 
     # configure OIDC for github actions first to create the IAM role: https://docs.github.com/en/actions/how-tos/secure-your-work/security-harden-deployments/oidc-in-aws
       - name: Configure AWS Credentials (OIDC)
-        uses: aws-actions/configure-aws-credentials@v4
+        uses: aws-actions/configure-aws-credentials@v5.1.1
         with:
           # ARN of the IAM role GitHub Actions will assume
           role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
