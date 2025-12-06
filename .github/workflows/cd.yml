@@ -12,11 +12,13 @@ on:
 permissions:
   id-token: write
   contents: read
-  
+
 jobs:
   deploy:
     name: Deploy to k8s goat scenarios to EKS
     runs-on: ubuntu-latest 
+    env:
+        EKS_CLUSTER_NAME: kwan-k8s-goat-cluster
     
     # if: github.event.workflow_run.conclusion == 'success'
     steps:      
@@ -33,7 +35,7 @@ jobs:
           aws-region: us-east-2
 
       - name: Update Kubeconfig for EKS
-        run: aws eks update-kubeconfig --name ${{ secrets.EKS_CLUSTER_NAME }} --region us-east-2 
+        run: aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region us-east-2 
 
       - name: Deploy to cluster
         run: |
