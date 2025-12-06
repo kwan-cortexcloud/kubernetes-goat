@@ -72,7 +72,7 @@ jobs:
     - name: Configure AWS Credentials
       uses: aws-actions/configure-aws-credentials@v4
       with:
-        role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+        role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_GHA }}
         aws-region: us-east-2
 
     - name: ECR Login

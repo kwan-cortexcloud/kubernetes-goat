@@ -24,7 +24,7 @@ jobs:
         uses: aws-actions/configure-aws-credentials@v5.1.1
         with:
           # ARN of the IAM role GitHub Actions will assume
-          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME }}
+          role-to-assume: ${{ secrets.AWS_ROLE_TO_ASSUME_FOR_GHA }}
           aws-region: us-east-2 # EKS cluster's region
     
       - name: Update Kubeconfig for EKS
