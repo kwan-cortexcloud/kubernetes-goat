@@ -82,6 +82,16 @@ resource "aws_iam_role" "github_actions" {
   }
 }
 
+resource "aws_iam_role_policy_attachment" "attach_eks_cluster_policy" {
+  role       = aws_iam_role.github_actions.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+}
+
+resource "aws_iam_role_policy_attachment" "attach_eks_worker_policy" {
+  role       = aws_iam_role.github_actions.name
+  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+}
+
 # =============================================================================
 # 4. EKS PERMISSIONS (LEAST PRIVILEGE / NAMESPACE SCOPED)
 # =============================================================================
