@@ -82,14 +82,26 @@ resource "aws_iam_role" "github_actions" {
   }
 }
 
-resource "aws_iam_role_policy_attachment" "attach_eks_cluster_policy" {
-  role       = aws_iam_role.github_actions.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSClusterPolicy"
+resource "aws_iam_policy" "eks_describe" {
+  name        = "github-actions-eks-describe-policy"
+  description = "Allow GitHub Actions to discover the EKS cluster endpoint"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Sid      = "DescribeCluster"
+        Effect   = "Allow"
+        Action   = "eks:DescribeCluster"
+        Resource = "*"
+      }
+    ]
+  })
 }
 
-resource "aws_iam_role_policy_attachment" "attach_eks_worker_policy" {
+resource "aws_iam_role_policy_attachment" "eks_describe_attach" {
   role       = aws_iam_role.github_actions.name
-  policy_arn = "arn:aws:iam::aws:policy/AmazonEKSWorkerNodePolicy"
+  policy_arn = aws_iam_policy.eks_describe.arn
 }
 
 # =============================================================================
