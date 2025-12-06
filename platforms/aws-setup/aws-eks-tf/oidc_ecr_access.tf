@@ -7,7 +7,7 @@
 variable "k8s_namespace" {
   description = "The Kubernetes namespace for the service account."
   type        = string
-  default     = "goat"
+  default     = "default"
 }
 
 variable "k8s_service_account_name" {
@@ -132,11 +132,6 @@ resource "aws_iam_role_policy_attachment" "ecr_policy_attach" {
 # -----------------------------------------------------------------------------
 # STEP 4: KUBERNETES SERVICE ACCOUNT
 # -----------------------------------------------------------------------------
-resource "kubernetes_namespace" "app_namespace" {
-  metadata {
-    name = var.k8s_namespace
-  }
-}
 
 resource "kubernetes_service_account" "ecr_puller_sa" {
   metadata {

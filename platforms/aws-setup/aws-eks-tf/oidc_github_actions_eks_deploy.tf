@@ -9,8 +9,6 @@ locals {
   iam_role_name_4_gh = "kwan-github-actions-ecr-eks-deploy-role"
   github_org_repo    = "kwan-cortexcloud/kubernetes-goat"
   ecr_repo_name      = "k8s-goat-build-code"
-  # LEAST PRIVILEGE: The specific namespace the GitHub Action can deploy to
-  target_namespace = "goat"
 }
 
 # =============================================================================
@@ -97,6 +95,17 @@ resource "aws_iam_policy" "eks_describe" {
       }
     ]
   })
+  tags = {
+    git_commit           = "4dca89fd0148d3f27635e55b3a61c66342acec17"
+    git_file             = "platforms/aws-setup/aws-eks-tf/oidc_github_actions_eks_deploy.tf"
+    git_last_modified_at = "2025-12-06 05:17:39"
+    git_last_modified_by = "kwan@paloaltonetworks.com"
+    git_modifiers        = "kwan"
+    git_org              = "kwan-cortexcloud"
+    git_repo             = "kubernetes-goat"
+    yor_name             = "eks_describe"
+    yor_trace            = "2a90bd53-5057-471b-95b9-b5893f0e375a"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "eks_describe_attach" {
@@ -135,7 +144,7 @@ resource "aws_eks_access_policy_association" "cluster_deploy" {
   policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
 
   access_scope {
-    type       = "cluster"
+    type = "cluster"
   }
 }
 
@@ -173,9 +182,9 @@ resource "aws_iam_policy" "ecr_push" {
     ]
   })
   tags = {
-    git_commit           = "dae5c9314cfd0e1913f8dde17bc22adda32afe0e"
+    git_commit           = "4dca89fd0148d3f27635e55b3a61c66342acec17"
     git_file             = "platforms/aws-setup/aws-eks-tf/oidc_github_actions_eks_deploy.tf"
-    git_last_modified_at = "2025-12-06 04:33:21"
+    git_last_modified_at = "2025-12-06 05:04:25"
     git_last_modified_by = "kwan@paloaltonetworks.com"
     git_modifiers        = "kwan"
     git_org              = "kwan-cortexcloud"
