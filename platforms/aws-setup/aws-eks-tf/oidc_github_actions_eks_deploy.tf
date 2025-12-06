@@ -28,9 +28,9 @@ resource "aws_iam_openid_connect_provider" "github" {
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.github.certificates[0].sha1_fingerprint]
   tags = {
-    git_commit           = "0b755435cc7a295f6aa2c1a2c714e88588107723"
+    git_commit           = "dae5c9314cfd0e1913f8dde17bc22adda32afe0e"
     git_file             = "platforms/aws-setup/aws-eks-tf/oidc_github_actions_eks_deploy.tf"
-    git_last_modified_at = "2025-12-06 04:19:43"
+    git_last_modified_at = "2025-12-06 04:33:21"
     git_last_modified_by = "kwan@paloaltonetworks.com"
     git_modifiers        = "kwan"
     git_org              = "kwan-cortexcloud"
@@ -70,9 +70,9 @@ resource "aws_iam_role" "github_actions" {
     ]
   })
   tags = {
-    git_commit           = "0b755435cc7a295f6aa2c1a2c714e88588107723"
+    git_commit           = "dae5c9314cfd0e1913f8dde17bc22adda32afe0e"
     git_file             = "platforms/aws-setup/aws-eks-tf/oidc_github_actions_eks_deploy.tf"
-    git_last_modified_at = "2025-12-06 04:19:43"
+    git_last_modified_at = "2025-12-06 04:33:21"
     git_last_modified_by = "kwan@paloaltonetworks.com"
     git_modifiers        = "kwan"
     git_org              = "kwan-cortexcloud"
@@ -92,9 +92,9 @@ resource "aws_eks_access_entry" "github_actions" {
   principal_arn = aws_iam_role.github_actions.arn
   type          = "STANDARD"
   tags = {
-    git_commit           = "0b755435cc7a295f6aa2c1a2c714e88588107723"
+    git_commit           = "dae5c9314cfd0e1913f8dde17bc22adda32afe0e"
     git_file             = "platforms/aws-setup/aws-eks-tf/oidc_github_actions_eks_deploy.tf"
-    git_last_modified_at = "2025-12-06 04:19:43"
+    git_last_modified_at = "2025-12-06 04:33:21"
     git_last_modified_by = "kwan@paloaltonetworks.com"
     git_modifiers        = "kwan"
     git_org              = "kwan-cortexcloud"
@@ -104,13 +104,25 @@ resource "aws_eks_access_entry" "github_actions" {
   }
 }
 
-# Grant "Edit" permissions ONLY for the specific namespace
-resource "aws_eks_access_policy_association" "github_actions_scope" {
-  cluster_name  = var.cluster_name
+# CLUSTER VIEW: Allow "Get/List" on ALL cluster resources
+resource "aws_eks_access_policy_association" "cluster_read_only" {
+  cluster_name  = local.eks_cluster_name
   principal_arn = aws_iam_role.github_actions.arn
 
-  # 'AmazonEKSEditPolicy': Allows apply/delete of deployments, services, ingress.
-  # Does NOT allow modifying Roles or Cluster Config.
+  # ViewPolicy allows Read-Only access to Kubernetes resources
+  policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSViewPolicy"
+
+  access_scope {
+    type = "cluster"
+  }
+}
+
+# NAMESPACE DEPLOY: Allow "Apply/Delete" ONLY in 'goat'
+resource "aws_eks_access_policy_association" "goat_deploy" {
+  cluster_name  = local.eks_cluster_name
+  principal_arn = aws_iam_role.github_actions.arn
+
+  # EditPolicy allows creating/updating Deployments, Services, etc.
   policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
 
   access_scope {
@@ -153,9 +165,9 @@ resource "aws_iam_policy" "ecr_push" {
     ]
   })
   tags = {
-    git_commit           = "0b755435cc7a295f6aa2c1a2c714e88588107723"
+    git_commit           = "dae5c9314cfd0e1913f8dde17bc22adda32afe0e"
     git_file             = "platforms/aws-setup/aws-eks-tf/oidc_github_actions_eks_deploy.tf"
-    git_last_modified_at = "2025-12-06 04:19:43"
+    git_last_modified_at = "2025-12-06 04:33:21"
     git_last_modified_by = "kwan@paloaltonetworks.com"
     git_modifiers        = "kwan"
     git_org              = "kwan-cortexcloud"
