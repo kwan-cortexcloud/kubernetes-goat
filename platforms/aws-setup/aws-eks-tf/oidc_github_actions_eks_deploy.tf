@@ -7,8 +7,8 @@ data "aws_region" "current" {}
 
 locals {
   iam_role_name_4_gh = "kwan-github-actions-ecr-eks-deploy-role"
-  github_org_repo = "kwan-cortexcloud/kubernetes-goat"
-  ecr_repo_name    = "k8s-goat-build-code" 
+  github_org_repo    = "kwan-cortexcloud/kubernetes-goat"
+  ecr_repo_name      = "k8s-goat-build-code"
   # LEAST PRIVILEGE: The specific namespace the GitHub Action can deploy to
   target_namespace = "goat"
 }
@@ -27,6 +27,17 @@ resource "aws_iam_openid_connect_provider" "github" {
   url             = "https://token.actions.githubusercontent.com"
   client_id_list  = ["sts.amazonaws.com"]
   thumbprint_list = [data.tls_certificate.github.certificates[0].sha1_fingerprint]
+  tags = {
+    git_commit           = "0b755435cc7a295f6aa2c1a2c714e88588107723"
+    git_file             = "platforms/aws-setup/aws-eks-tf/oidc_github_actions_eks_deploy.tf"
+    git_last_modified_at = "2025-12-06 04:19:43"
+    git_last_modified_by = "kwan@paloaltonetworks.com"
+    git_modifiers        = "kwan"
+    git_org              = "kwan-cortexcloud"
+    git_repo             = "kubernetes-goat"
+    yor_name             = "github"
+    yor_trace            = "183eb20a-f746-41f5-a677-c34ba939e6cd"
+  }
 }
 
 # =============================================================================
@@ -49,15 +60,26 @@ resource "aws_iam_role" "github_actions" {
         Condition = {
           StringLike = {
             # Limits usage to your specific repository
-            "token.actions.githubusercontent.com:sub": "repo:${local.github_org_repo}:*"
+            "token.actions.githubusercontent.com:sub" : "repo:${local.github_org_repo}:*"
           }
           StringEquals = {
-            "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+            "token.actions.githubusercontent.com:aud" : "sts.amazonaws.com"
           }
         }
       }
     ]
   })
+  tags = {
+    git_commit           = "0b755435cc7a295f6aa2c1a2c714e88588107723"
+    git_file             = "platforms/aws-setup/aws-eks-tf/oidc_github_actions_eks_deploy.tf"
+    git_last_modified_at = "2025-12-06 04:19:43"
+    git_last_modified_by = "kwan@paloaltonetworks.com"
+    git_modifiers        = "kwan"
+    git_org              = "kwan-cortexcloud"
+    git_repo             = "kubernetes-goat"
+    yor_name             = "github_actions"
+    yor_trace            = "f6fd9c0c-a472-41c0-adae-748d0d968fbc"
+  }
 }
 
 # =============================================================================
@@ -69,6 +91,17 @@ resource "aws_eks_access_entry" "github_actions" {
   cluster_name  = var.cluster_name
   principal_arn = aws_iam_role.github_actions.arn
   type          = "STANDARD"
+  tags = {
+    git_commit           = "0b755435cc7a295f6aa2c1a2c714e88588107723"
+    git_file             = "platforms/aws-setup/aws-eks-tf/oidc_github_actions_eks_deploy.tf"
+    git_last_modified_at = "2025-12-06 04:19:43"
+    git_last_modified_by = "kwan@paloaltonetworks.com"
+    git_modifiers        = "kwan"
+    git_org              = "kwan-cortexcloud"
+    git_repo             = "kubernetes-goat"
+    yor_name             = "github_actions"
+    yor_trace            = "ba045345-d0b6-44c4-87c6-3652227efeb0"
+  }
 }
 
 # Grant "Edit" permissions ONLY for the specific namespace
@@ -78,7 +111,7 @@ resource "aws_eks_access_policy_association" "github_actions_scope" {
 
   # 'AmazonEKSEditPolicy': Allows apply/delete of deployments, services, ingress.
   # Does NOT allow modifying Roles or Cluster Config.
-  policy_arn    = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
+  policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
 
   access_scope {
     type       = "namespace"
@@ -104,9 +137,9 @@ resource "aws_iam_policy" "ecr_push" {
         Resource = "*"
       },
       {
-        Sid      = "AllowPushToRepo"
-        Effect   = "Allow"
-        Action   = [
+        Sid    = "AllowPushToRepo"
+        Effect = "Allow"
+        Action = [
           "ecr:BatchCheckLayerAvailability",
           "ecr:GetDownloadUrlForLayer",
           "ecr:BatchGetImage",
@@ -119,6 +152,17 @@ resource "aws_iam_policy" "ecr_push" {
       }
     ]
   })
+  tags = {
+    git_commit           = "0b755435cc7a295f6aa2c1a2c714e88588107723"
+    git_file             = "platforms/aws-setup/aws-eks-tf/oidc_github_actions_eks_deploy.tf"
+    git_last_modified_at = "2025-12-06 04:19:43"
+    git_last_modified_by = "kwan@paloaltonetworks.com"
+    git_modifiers        = "kwan"
+    git_org              = "kwan-cortexcloud"
+    git_repo             = "kubernetes-goat"
+    yor_name             = "ecr_push"
+    yor_trace            = "233fd70a-5dde-43e3-b461-5e751646406e"
+  }
 }
 
 resource "aws_iam_role_policy_attachment" "ecr_attach" {

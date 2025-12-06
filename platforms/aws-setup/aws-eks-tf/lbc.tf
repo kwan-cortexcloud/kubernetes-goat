@@ -8,9 +8,9 @@ resource "aws_iam_openid_connect_provider" "eks_oidc_provider" {
   thumbprint_list = [data.tls_certificate.eks.certificates[0].sha1_fingerprint]
   url             = aws_eks_cluster.k8s_goat_cluster.identity[0].oidc[0].issuer
   tags = {
-    git_commit           = "N/A"
+    git_commit           = "18d39a16ac04c80b36a4aa6ec548150c8755afae"
     git_file             = "platforms/aws-setup/aws-eks-tf/lbc.tf"
-    git_last_modified_at = "2025-11-20 22:07:07"
+    git_last_modified_at = "2025-11-20 22:09:32"
     git_last_modified_by = "kwan@paloaltonetworks.com"
     git_modifiers        = "kwan"
     git_org              = "kwan-cortexcloud"
@@ -30,9 +30,9 @@ resource "aws_iam_policy" "lbc_policy" {
   description = "IAM policy for the AWS Load Balancer Controller"
   policy      = file("${path.module}/iam_policy.json")
   tags = {
-    git_commit           = "efd118cc07ab9024323d29f00158a21c113a6b61"
+    git_commit           = "18d39a16ac04c80b36a4aa6ec548150c8755afae"
     git_file             = "platforms/aws-setup/aws-eks-tf/lbc.tf"
-    git_last_modified_at = "2025-10-15 00:32:34"
+    git_last_modified_at = "2025-11-20 22:09:32"
     git_last_modified_by = "kwan@paloaltonetworks.com"
     git_modifiers        = "kwan"
     git_org              = "kwan-cortexcloud"
@@ -64,9 +64,9 @@ resource "aws_iam_role" "lbc_role" {
     ]
   })
   tags = {
-    git_commit           = "N/A"
+    git_commit           = "18d39a16ac04c80b36a4aa6ec548150c8755afae"
     git_file             = "platforms/aws-setup/aws-eks-tf/lbc.tf"
-    git_last_modified_at = "2025-11-20 22:07:07"
+    git_last_modified_at = "2025-11-20 22:09:32"
     git_last_modified_by = "kwan@paloaltonetworks.com"
     git_modifiers        = "kwan"
     git_org              = "kwan-cortexcloud"

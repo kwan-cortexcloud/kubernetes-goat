@@ -75,8 +75,15 @@ resource "aws_iam_policy" "ecr_readonly_policy" {
     ]
   })
   tags = {
-    yor_name  = "ecr_readonly_policy"
-    yor_trace = "9e411dd4-6feb-40f9-b34b-89a02fe8b5bf"
+    yor_name             = "ecr_readonly_policy"
+    yor_trace            = "9e411dd4-6feb-40f9-b34b-89a02fe8b5bf"
+    git_commit           = "18d39a16ac04c80b36a4aa6ec548150c8755afae"
+    git_file             = "platforms/aws-setup/aws-eks-tf/oidc_ecr_access.tf"
+    git_last_modified_at = "2025-11-20 22:09:32"
+    git_last_modified_by = "kwan@paloaltonetworks.com"
+    git_modifiers        = "kwan"
+    git_org              = "kwan-cortexcloud"
+    git_repo             = "kubernetes-goat"
   }
 }
 
@@ -104,8 +111,15 @@ resource "aws_iam_role" "ecr_puller_role" {
   name               = var.role_name
   assume_role_policy = data.aws_iam_policy_document.assume_role_policy.json
   tags = {
-    yor_name  = "ecr_puller_role"
-    yor_trace = "f4be0dcf-d162-4517-a4d7-532e5dcf217b"
+    yor_name             = "ecr_puller_role"
+    yor_trace            = "f4be0dcf-d162-4517-a4d7-532e5dcf217b"
+    git_commit           = "18d39a16ac04c80b36a4aa6ec548150c8755afae"
+    git_file             = "platforms/aws-setup/aws-eks-tf/oidc_ecr_access.tf"
+    git_last_modified_at = "2025-11-20 22:09:32"
+    git_last_modified_by = "kwan@paloaltonetworks.com"
+    git_modifiers        = "kwan"
+    git_org              = "kwan-cortexcloud"
+    git_repo             = "kubernetes-goat"
   }
 }
 
