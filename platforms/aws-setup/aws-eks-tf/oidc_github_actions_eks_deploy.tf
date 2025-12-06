@@ -126,30 +126,16 @@ resource "aws_eks_access_entry" "github_actions" {
   }
 }
 
-# CLUSTER VIEW: Allow "Get/List" on ALL cluster resources
-resource "aws_eks_access_policy_association" "cluster_read_only" {
-  cluster_name  = local.eks_cluster_name
-  principal_arn = aws_iam_role.github_actions.arn
-
-  # ViewPolicy allows Read-Only access to Kubernetes resources
-  policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSViewPolicy"
-
-  access_scope {
-    type = "cluster"
-  }
-}
-
-# NAMESPACE DEPLOY: Allow "Apply/Delete" ONLY in 'goat'
-resource "aws_eks_access_policy_association" "goat_deploy" {
-  cluster_name  = local.eks_cluster_name
+# CLUSTER VIEW: Allow deploy on across cluster 
+resource "aws_eks_access_policy_association" "cluster_deploy" {
+  cluster_name  = var.cluster_name
   principal_arn = aws_iam_role.github_actions.arn
 
   # EditPolicy allows creating/updating Deployments, Services, etc.
-  policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSEditPolicy"
+  policy_arn = "arn:aws:eks::aws:cluster-access-policy/AmazonEKSClusterAdminPolicy"
 
   access_scope {
-    type       = "namespace"
-    namespaces = [local.target_namespace]
+    type       = "cluster"
   }
 }
 
