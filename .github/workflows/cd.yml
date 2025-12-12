@@ -37,6 +37,20 @@ jobs:
       - name: Update Kubeconfig for EKS
         run: aws eks update-kubeconfig --name ${EKS_CLUSTER_NAME} --region us-east-2 
 
+      - name: Execute Cleanup Script
+        run: |
+          echo "Starting cleanup script first to tear down previous deployment..."
+          chmod +x teardown-kubernetes-goat-kwan.sh
+          sh ./teardown-kubernetes-goat-kwan.sh
+          echo "Cleanup script finished."
+
+      - name: Sleep for 60 Seconds
+        # Using the standard 'sleep' command available on Linux runners (ubuntu-latest)
+        run: |
+          echo "Pausing workflow execution for 60 seconds..."
+          sleep 60
+          echo "Resuming execution."
+          
       - name: Deploy to cluster
         run: |
           chmod +x setup-kubernetes-goat-kwan.sh
